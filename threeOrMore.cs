@@ -8,97 +8,95 @@ namespace TwoDieGameAssignment
     {
         private Random random;
         private List<int> dice;
+        private int totalScore;
+        private Statistics statistics;
 
-        public ThreeOrMore()
+        public ThreeOrMore(Statistics stats)
         {
             random = new Random();
             dice = new List<int>();
+            totalScore = 0;
+            statistics = stats;
+
+            // Record the game play
+            statistics.RecordGamePlay("Three or More");
         }
 
         public void Play()
         {
             Console.WriteLine("Playing Three or More...");
-            int totalScore = 0;
 
-            while (totalScore < 20)
+            try
             {
-                // Roll 5 dice
-                RollDice(5);
-
-                Console.WriteLine("Your dice: " + string.Join(", ", dice));
-
-                // Calculate combination points
-                int points = CalculatePoints();
-
-                Console.WriteLine($"Points: {points}");
-
-                // Add points to total score
-                totalScore += points;
-
-                Console.WriteLine($"Total score: {totalScore}");
-
-                // Check if total score is 20 or more
-                if (totalScore >= 20)
+                while (totalScore < 20)
                 {
-                    Console.WriteLine("Congratulations! You reached 20 points.");
-                    break;
+                    RollDice(5);
+
+                    Console.WriteLine("Your dice: " + string.Join(", ", dice));
+
+                    var groupedDice = dice.GroupBy(x => x);
+                    var maxCount = groupedDice.Max(g => g.Count());
+
+                    if (maxCount >= 3) // Check for 3-of-a-kind or better
+                    {
+                        int points = CalculatePoints(maxCount);
+                        totalScore += points;
+
+                        Console.WriteLine($"Points: {points}");
+                        Console.WriteLine($"Total score: {totalScore}");
+
+                        // Update high score in statistics
+                        statistics.RecordHighScore("Three or More", totalScore);
+                    }
+                    else
+                    {
+                        Console.Write("You didn't get 3-of-a-kind or better. Reroll all dice? (y/n): ");
+                        string input = Console.ReadLine();
+
+                        if (input?.ToLower() == "y")
+                        {
+                            dice.Clear();
+                            continue;
+                        }
+
+                        Console.WriteLine("Game over. Final score: " + totalScore);
+                        break;
+                    }
                 }
 
-                // Ask if player wants to roll again
-                Console.Write("Roll again? (y/n): ");
-                string input = Console.ReadLine();
-
-                if (input.ToLower() != "y")
-                {
-                    break;
-                }
-
-                dice.Clear(); // Clear dice for the next roll
+                Console.WriteLine("Congratulations! You reached 20 points.");
             }
-
-            Console.WriteLine($"Final score: {totalScore}");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
         }
 
-        public List<int> RollDice(int count)
+        public int GetTotalScore()
+        {
+            return totalScore;
+        }
+
+        private void RollDice(int count)
         {
             dice.Clear();
 
             for (int i = 0; i < count; i++)
             {
-                dice.Add(random.Next(1, 7)); // Roll a die (1-6) and add to list
+                dice.Add(random.Next(1, 7)); // Roll a die (1-6)
             }
-
-            return dice;
         }
 
-        public int CalculatePoints()
+        private int CalculatePoints(int maxCount)
         {
-            var groupedDice = dice.GroupBy(x => x);
-            int points = 0;
+            if (maxCount == 3)
+                return 3; // 3-of-a-kind: 3 points
+            else if (maxCount == 4)
+                return 6; // 4-of-a-kind: 6 points
+            else if (maxCount == 5)
+                return 12; // 5-of-a-kind: 12 points
 
-            foreach (var group in groupedDice)
-            {
-                if (group.Count() >= 3) // 3-of-a-kind or better
-                {
-                    if (group.Count() == 3)
-                    {
-                        points += 3; // 3-of-a-kind: 3 points
-                    }
-                    else if (group.Count() == 4)
-                    {
-                        points += 6; // 4-of-a-kind: 6 points
-                    }
-                    else if (group.Count() == 5)
-                    {
-                        points += 12; // 5-of-a-kind: 12 points
-                    }
-
-                    // Remove the used dice from the list
-                    dice.RemoveAll(x => x == group.Key);
-                }
-            }
-
-            return points;
+            return 0; // No valid points
         }
     }
 }

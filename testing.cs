@@ -3,61 +3,65 @@ using System.Diagnostics;
 
 namespace TwoDieGameAssignment
 {
-    public static class Testing
+    public class Testing
     {
-        public static void Run()
+        private Statistics statistics;
+
+        public Testing(Statistics stats)
         {
-            // Create a Game object
+            statistics = stats;
+        }
+
+        public void RunTests()
+        {
+            // Create a new Game object
             Game game = new Game();
 
-            // Test Sevens Out game logic
+            // Test Sevens Out game
             TestSevensOut(game);
 
-            // Test Three or More game logic
+            // Test Three or More game
             TestThreeOrMore(game);
+
+            Console.WriteLine("All tests completed.");
         }
 
-        private static void TestSevensOut(Game game)
+        private void TestSevensOut(Game game)
         {
-            SevensOut sevensOut = new SevensOut();
+            Console.WriteLine("Testing Sevens Out...");
 
-            // Test Sevens Out game logic
-            int totalSum = 0;
-            while (totalSum != 7)
-            {
-                int result = sevensOut.RollDie();
-                Debug.WriteLine($"Sevens Out: Rolled {result}");
+            SevensOut sevensOutGame = new SevensOut(statistics);
 
-                totalSum += result;
-                Debug.WriteLine($"Sevens Out: Current Total Sum = {totalSum}");
+            // Run Sevens Out game with total of sum, stop if total = 7
+            int totalScore = RunSevensOutGame(sevensOutGame);
+            Debug.Assert(totalScore <= 7, "Sevens Out test failed: Total exceeded 7.");
 
-                Debug.Assert(totalSum <= 7, "Sevens Out: Total sum should not exceed 7.");
-            }
-
-            Debug.WriteLine("Sevens Out: Game stopped because total sum reached 7.");
+            Console.WriteLine("Sevens Out test passed!");
         }
 
-        private static void TestThreeOrMore(Game game)
+        private int RunSevensOutGame(SevensOut game)
         {
-            ThreeOrMore threeOrMore = new ThreeOrMore();
+            game.Play();
+            return game.GetTotalScore();
+        }
 
-            // Test Three or More game logic
-            int totalScore = 0;
-            while (totalScore < 20)
-            {
-                List<int> diceValues = threeOrMore.RollDice(5);
-                Debug.WriteLine($"Three or More: Rolled dice: {string.Join(", ", diceValues)}");
+        private void TestThreeOrMore(Game game)
+        {
+            Console.WriteLine("Testing Three or More...");
 
-                totalScore += threeOrMore.CalculatePoints();
-                Debug.WriteLine($"Three or More: Current Total Score = {totalScore}");
+            ThreeOrMore threeOrMoreGame = new ThreeOrMore(statistics);
 
-                Debug.Assert(totalScore >= diceValues.Sum(), "Three or More: Score should be added correctly.");
+            // Run Three or More game and verify scores set and added correctly
+            int totalScore = RunThreeOrMoreGame(threeOrMoreGame);
+            Debug.Assert(totalScore >= 20, "Three or More test failed: Total score less than 20.");
 
-                if (totalScore >= 20)
-                {
-                    Debug.WriteLine("Three or More: Total score reached or exceeded 20.");
-                }
-            }
+            Console.WriteLine("Three or More test passed!");
+        }
+
+        private int RunThreeOrMoreGame(ThreeOrMore game)
+        {
+            game.Play();
+            return game.GetTotalScore();
         }
     }
 }

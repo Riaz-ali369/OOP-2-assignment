@@ -4,15 +4,13 @@ namespace TwoDieGameAssignment
 {
     public class Game
     {
-        private SevensOut sevensOutGame;
-        private ThreeOrMore threeOrMoreGame;
         private Statistics statistics;
+        private Testing testing;
 
         public Game()
         {
-            sevensOutGame = new SevensOut();
-            threeOrMoreGame = new ThreeOrMore();
             statistics = new Statistics();
+            testing = new Testing(statistics);
         }
 
         public void ShowMenu()
@@ -25,27 +23,24 @@ namespace TwoDieGameAssignment
                 Console.WriteLine("1. Play Sevens Out");
                 Console.WriteLine("2. Play Three or More");
                 Console.WriteLine("3. View Statistics");
-                Console.WriteLine("4. Run Tests");
+                Console.WriteLine("4. Perform Tests");
                 Console.WriteLine("5. Exit");
-                Console.Write("Enter your choice (1-5): ");
 
-                string choice = Console.ReadLine();
+                string choice = GetUserInput();
 
                 switch (choice)
                 {
                     case "1":
-                        statistics.RecordGamePlayed("Sevens Out");
-                        sevensOutGame.Play();
+                        InstantiateSevensOut();
                         break;
                     case "2":
-                        statistics.RecordGamePlayed("Three or More");
-                        threeOrMoreGame.Play();
+                        InstantiateThreeOrMore();
                         break;
                     case "3":
-                        statistics.Display();
+                        ViewStatistics();
                         break;
                     case "4":
-                        Testing.Run();
+                        PerformTests();
                         break;
                     case "5":
                         exit = true;
@@ -58,6 +53,38 @@ namespace TwoDieGameAssignment
 
                 Console.WriteLine(); // Add a blank line for readability
             }
+        }
+
+        private string GetUserInput()
+        {
+            Console.Write("Enter your choice (1-5): ");
+            return Console.ReadLine()?.Trim();
+        }
+
+        private void InstantiateSevensOut()
+        {
+            Console.WriteLine("Instantiating Sevens Out game...");
+            SevensOut sevensOutGame = new SevensOut(statistics);
+            sevensOutGame.Play();
+        }
+
+        private void InstantiateThreeOrMore()
+        {
+            Console.WriteLine("Instantiating Three or More game...");
+            ThreeOrMore threeOrMoreGame = new ThreeOrMore(statistics);
+            threeOrMoreGame.Play();
+        }
+
+        private void ViewStatistics()
+        {
+            Console.WriteLine("Viewing Statistics...");
+            statistics.Display();
+        }
+
+        private void PerformTests()
+        {
+            Console.WriteLine("Performing Tests...");
+            testing.RunTests();
         }
     }
 }
