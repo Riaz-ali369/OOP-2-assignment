@@ -1,67 +1,72 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Diagnostics; // imports the debug function
 
-namespace TwoDieGameAssignment
+namespace Two_Die_Game_Assignment
 {
     public class Testing
     {
         private Statistics statistics;
 
+        // this is a constructor that initalises the testing class with the statistics onject 
         public Testing(Statistics stats)
         {
             statistics = stats;
         }
 
-        public void RunTests()
+        public void RunTests() // this method runs all the tests 
         {
-            // Create a new Game object
+            // Creates a new Game object
             Game game = new Game();
 
-            // Test Sevens Out game
+            // Tests Sevens Out game
             TestSevensOut(game);
 
-            // Test Three or More game
+            // Tests Three or More game
             TestThreeOrMore(game);
 
-            Console.WriteLine("All tests completed.");
+            Console.WriteLine("All tests are completed.");
         }
 
-        private void TestSevensOut(Game game)
+        private void TestSevensOut(Game game) // method to test sevens out 
         {
-            Console.WriteLine("Testing Sevens Out...");
+            Console.WriteLine("Testing sevens out right now...");
+            // below creates a seven out instance with provided statistics 
+            SevensOut sevensOutGame = new SevensOut(statistics); 
 
-            SevensOut sevensOutGame = new SevensOut(statistics);
+            // Run sevens out game and checks what the outcome is 
+            int scoreOutput = RunSevensOutGame(sevensOutGame);
+            Debug.Assert(scoreOutput <= 7, "Sevens out test failed: Total exceeded 7.");
 
-            // Run Sevens Out game with total of sum, stop if total = 7
-            int totalScore = RunSevensOutGame(sevensOutGame);
-            Debug.Assert(totalScore <= 7, "Sevens Out test failed: Total exceeded 7.");
-
-            Console.WriteLine("Sevens Out test passed!");
+            Console.WriteLine("Sevens out test passed the test");
         }
 
         private int RunSevensOutGame(SevensOut game)
         {
-            game.Play();
-            return game.GetTotalScore();
+            return game.RollDie();
         }
 
+        // this tests three or more game 
         private void TestThreeOrMore(Game game)
         {
-            Console.WriteLine("Testing Three or More...");
-
+            Console.WriteLine("Testing Three or More right now...");
+            // below creats an instance of the game 
             ThreeOrMore threeOrMoreGame = new ThreeOrMore(statistics);
 
-            // Run Three or More game and verify scores set and added correctly
+            // checks the outcome of the game 
             int totalScore = RunThreeOrMoreGame(threeOrMoreGame);
-            Debug.Assert(totalScore >= 20, "Three or More test failed: Total score less than 20.");
+                Debug.Assert(totalScore >= 20, "Three or more test failed: Total score less than 20.");
 
             Console.WriteLine("Three or More test passed!");
         }
 
-        private int RunThreeOrMoreGame(ThreeOrMore game)
+        public int RunThreeOrMoreGame(ThreeOrMore game)
         {
-            game.Play();
-            return game.GetTotalScore();
+            game.Play(); // simulates the game 
+            return game.GetTotalScore(); // returns the total
         }
     }
 }
