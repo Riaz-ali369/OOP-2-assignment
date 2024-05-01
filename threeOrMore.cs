@@ -34,33 +34,37 @@ namespace TwoDieGameAssignment
 
                     Console.WriteLine("Your dice: " + string.Join(", ", dice));
 
-                    int points = CalculatePoints();
-                    totalScore += points;
+                    var groupedDice = dice.GroupBy(x => x);
+                    var maxCount = groupedDice.Max(g => g.Count());
 
-                    Console.WriteLine($"Points: {points}");
-                    Console.WriteLine($"Total score: {totalScore}");
-
-                    // Update high score in statistics
-                    statistics.RecordHighScore("Three or More", totalScore);
-
-                    if (totalScore >= 20)
+                    if (maxCount >= 3) // Check for 3-of-a-kind or better
                     {
-                        Console.WriteLine("Congratulations! You reached 20 points.");
+                        int points = CalculatePoints(maxCount);
+                        totalScore += points;
+
+                        Console.WriteLine($"Points: {points}");
+                        Console.WriteLine($"Total score: {totalScore}");
+
+                        // Update high score in statistics
+                        statistics.RecordHighScore("Three or More", totalScore);
+                    }
+                    else
+                    {
+                        Console.Write("You didn't get 3-of-a-kind or better. Reroll all dice? (y/n): ");
+                        string input = Console.ReadLine();
+
+                        if (input?.ToLower() == "y")
+                        {
+                            dice.Clear();
+                            continue;
+                        }
+
+                        Console.WriteLine("Game over. Final score: " + totalScore);
                         break;
                     }
-
-                    Console.Write("Roll again? (y/n): ");
-                    string input = Console.ReadLine();
-
-                    if (input?.ToLower() != "y")
-                    {
-                        break;
-                    }
-
-                    dice.Clear();
                 }
 
-                Console.WriteLine($"Final score: {totalScore}");
+                Console.WriteLine("Congratulations! You reached 20 points.");
             }
             catch (Exception ex)
             {
@@ -79,31 +83,20 @@ namespace TwoDieGameAssignment
 
             for (int i = 0; i < count; i++)
             {
-                dice.Add(random.Next(1, 7));
+                dice.Add(random.Next(1, 7)); // Roll a die (1-6)
             }
         }
 
-        private int CalculatePoints()
+        private int CalculatePoints(int maxCount)
         {
-            var groupedDice = dice.GroupBy(x => x);
-            int points = 0;
+            if (maxCount == 3)
+                return 3; // 3-of-a-kind: 3 points
+            else if (maxCount == 4)
+                return 6; // 4-of-a-kind: 6 points
+            else if (maxCount == 5)
+                return 12; // 5-of-a-kind: 12 points
 
-            foreach (var group in groupedDice)
-            {
-                if (group.Count() >= 3)
-                {
-                    if (group.Count() == 3)
-                        points += 3;
-                    else if (group.Count() == 4)
-                        points += 6;
-                    else if (group.Count() == 5)
-                        points += 12;
-
-                    dice.RemoveAll(x => x == group.Key);
-                }
-            }
-
-            return points;
+            return 0; // No valid points
         }
     }
 }
